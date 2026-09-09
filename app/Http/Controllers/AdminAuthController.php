@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Admin;
 
 class AdminAuthController extends Controller
 {
@@ -28,15 +30,15 @@ class AdminAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
+        $admin = Admin::where('username', $credentials['username'])->first();
+
+        if ($admin && Hash::check($credentials['password'], $admin->password)) {
+            Auth::guard('admin')->login($admin, $request->boolean('remember'));
             return redirect()->route('admin.dashboard');
         }
 
-        $adminExists = \App\Models\Admin::where('username', $request->username)->exists();
-        $failReason = $adminExists ? 'Password salah (User admin ditemukan).' : 'User admin TIDAK ditemukan di database.';
-
         return back()->withErrors([
-            'username' => 'Gagal Login: ' . $failReason,
+            'username' => 'Username atau password yang dimasukkan salah.',
         ])->onlyInput('username');
     }
 
