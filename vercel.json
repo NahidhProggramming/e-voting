@@ -41,7 +41,7 @@
         "VIEW_COMPILED_PATH": "/tmp/views",
         "APP_MAINTENANCE_DRIVER": "file",
         "CACHE_STORE": "file",
-        "SESSION_DRIVER": "database",
+        "SESSION_DRIVER": "file",
         "LOG_CHANNEL": "stderr"
     }
 }

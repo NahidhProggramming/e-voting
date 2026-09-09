@@ -29,8 +29,10 @@ class AdminAuthController extends Controller
         ]);
 
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+            if (!isset($_ENV['VERCEL']) && !getenv('VERCEL')) {
+                $request->session()->regenerate();
+            }
+            return redirect()->route('admin.dashboard');
         }
 
         return back()->withErrors([
