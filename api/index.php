@@ -1,9 +1,17 @@
 <?php
 
-// Ensure compiled views directory exists in Vercel serverless environment (/tmp)
-$viewsPath = '/tmp/views';
-if (!is_dir($viewsPath)) {
-    @mkdir($viewsPath, 0755, true);
+// Ensure writable directories exist in Vercel serverless environment (/tmp)
+$directories = [
+    '/tmp/views',
+    '/tmp/sessions',
+    '/tmp/cache',
+    '/tmp/logs'
+];
+
+foreach ($directories as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
 }
 
 // Forward Vercel requests to Laravel public/index.php
