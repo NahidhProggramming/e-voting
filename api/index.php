@@ -6,6 +6,10 @@ putenv('VERCEL=1');
 
 // Ensure writable directories exist in Vercel serverless environment (/tmp)
 $directories = [
+    '/tmp/storage/framework/views',
+    '/tmp/storage/framework/sessions',
+    '/tmp/storage/framework/cache',
+    '/tmp/storage/logs',
     '/tmp/views',
     '/tmp/sessions',
     '/tmp/cache',
