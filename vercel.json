@@ -40,8 +40,9 @@
         "APP_SERVICES_CACHE": "/tmp/services.php",
         "VIEW_COMPILED_PATH": "/tmp/views",
         "APP_MAINTENANCE_DRIVER": "file",
-        "CACHE_STORE": "file",
-        "SESSION_DRIVER": "file",
+        "CACHE_STORE": "array",
+        "SESSION_DRIVER": "cookie",
+        "SESSION_ENCRYPT": "true",
         "LOG_CHANNEL": "stderr"
     }
 }
