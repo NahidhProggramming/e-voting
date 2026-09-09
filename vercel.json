@@ -29,8 +29,10 @@
         }
     ],
     "env": {
+        "APP_NAME": "E-Voting",
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_KEY": "base64:Bl5K+liNfYAXADHAV5abiHblsBgiWyog76Evh0da35Q=",
+        "APP_DEBUG": "false",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
