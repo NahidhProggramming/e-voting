@@ -1,0 +1,66 @@
+# Render Blueprint - Infrastructure as Code
+# This file auto-configures services when you deploy to Render
+# Docs: https://docs.render.com/blueprint-spec
+
+databases:
+  - name: evoting-db
+    plan: free
+    databaseName: evoting
+    user: evoting_user
+
+services:
+  - type: web
+    name: e-voting
+    plan: free
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_NAME
+        value: E-Voting
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        fromRenderService:
+          type: web
+          name: e-voting
+          property: host
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        fromDatabase:
+          name: evoting-db
+          property: connectionString
+      - key: DB_HOST
+        fromDatabase:
+          name: evoting-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: evoting-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: evoting-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: evoting-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: evoting-db
+          property: password
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: LOG_CHANNEL
+        value: stack
+      - key: LOG_LEVEL
+        value: error
+      - key: BCRYPT_ROUNDS
+        value: "12"

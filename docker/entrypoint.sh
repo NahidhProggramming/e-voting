@@ -3,9 +3,20 @@ set -e
 
 echo "🚀 Starting Laravel E-Voting..."
 
-# Use PORT from Railway or default to 8080
+# Use PORT from Railway/Render or default to 8080
 export PORT="${PORT:-8080}"
 echo "📡 Server will listen on port: $PORT"
+
+# Parse DATABASE_URL if provided (Render provides this)
+if [ -n "$DATABASE_URL" ] && [ -z "$DB_HOST" ]; then
+    echo "🔗 Parsing DATABASE_URL..."
+    export DB_CONNECTION=pgsql
+    export DB_HOST=$(echo $DATABASE_URL | sed -E 's/.*@([^:\/]+).*/\1/')
+    export DB_PORT=$(echo $DATABASE_URL | sed -E 's/.*:([0-9]+)\/.*/\1/')
+    export DB_DATABASE=$(echo $DATABASE_URL | sed -E 's/.*\/([^?]+).*/\1/')
+    export DB_USERNAME=$(echo $DATABASE_URL | sed -E 's/.*:\/\/([^:]+):.*/\1/')
+    export DB_PASSWORD=$(echo $DATABASE_URL | sed -E 's/.*:\/\/[^:]+:([^@]+)@.*/\1/')
+fi
 
 # Substitute PORT in Nginx config
 envsubst '${PORT}' < /etc/nginx/http.d/default.conf > /etc/nginx/http.d/default.conf.tmp
