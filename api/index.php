@@ -1,5 +1,9 @@
 <?php
 
+// Set environment flag for Vercel Serverless
+$_ENV['VERCEL'] = '1';
+putenv('VERCEL=1');
+
 // Ensure writable directories exist in Vercel serverless environment (/tmp)
 $directories = [
     '/tmp/views',
