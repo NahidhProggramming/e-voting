@@ -20,13 +20,15 @@ class VercelAdminAuth
             return $next($request);
         }
 
-        // 2. Check fallback Vercel auth cookie
+        // 2. Check fallback Vercel auth signed cookie
         $authToken = $request->cookie('admin_auth_token');
         if ($authToken) {
-            $admin = Admin::find($authToken);
-            if ($admin) {
-                Auth::guard('admin')->setUser($admin);
-                return $next($request);
+            $admins = Admin::all();
+            foreach ($admins as $admin) {
+                if ($authToken === md5($admin->id . '_evoting_secret_2026')) {
+                    Auth::guard('admin')->setUser($admin);
+                    return $next($request);
+                }
             }
         }
 

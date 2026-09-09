@@ -14,11 +14,14 @@ class AdminAuthController extends Controller
      */
     public function showLogin(Request $request)
     {
-        if (Auth::guard('admin')->check() || $request->cookie('admin_auth_token')) {
-            $authToken = $request->cookie('admin_auth_token');
-            if ($authToken && ($admin = Admin::find($authToken))) {
-                Auth::guard('admin')->setUser($admin);
-                return redirect()->route('admin.dashboard');
+        $authToken = $request->cookie('admin_auth_token');
+        if ($authToken) {
+            $admins = Admin::all();
+            foreach ($admins as $admin) {
+                if ($authToken === md5($admin->id . '_evoting_secret_2026')) {
+                    Auth::guard('admin')->setUser($admin);
+                    return redirect()->route('admin.dashboard');
+                }
             }
         }
         return view('admin.login');
@@ -39,9 +42,10 @@ class AdminAuthController extends Controller
         if ($admin && Hash::check($credentials['password'], $admin->password)) {
             Auth::guard('admin')->login($admin, true);
 
-            // Set secure auth cookie for Vercel serverless persistence (valid 2 hours)
+            $token = md5($admin->id . '_evoting_secret_2026');
+
             return redirect()->route('admin.dashboard')
-                ->cookie('admin_auth_token', $admin->id, 120, '/', null, true, false, false, 'Lax');
+                ->cookie('admin_auth_token', $token, 120, '/', null, false, false, false, 'Lax');
         }
 
         return back()->withErrors([
