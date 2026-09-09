@@ -19,7 +19,11 @@ class VotingController extends Controller
         $candidates = [];
 
         if ($votingStatus === 'open') {
-            $candidates = Candidate::orderBy('candidate_number', 'asc')->get();
+            try {
+                $candidates = Candidate::orderBy('candidate_number', 'asc')->get();
+            } catch (\Throwable $e) {
+                $candidates = [];
+            }
         }
 
         return view('voting', compact('candidates', 'votingStatus'));
