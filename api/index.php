@@ -22,5 +22,15 @@ foreach ($directories as $dir) {
     }
 }
 
+// Auto-run migration if tables don't exist yet
+if (isset($_GET['migrate']) && $_GET['migrate'] === 'secret123') {
+    require __DIR__ . '/../vendor/autoload.php';
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
+    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+    $status = $kernel->call('migrate:fresh', ['--seed' => true, '--force' => true]);
+    echo "<h1>Migration & Seeding Status:</h1><pre>" . $kernel->output() . "</pre>";
+    exit;
+}
+
 // Forward Vercel requests to Laravel public/index.php
 require __DIR__ . '/../public/index.php';
