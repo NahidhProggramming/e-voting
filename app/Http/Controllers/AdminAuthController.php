@@ -29,14 +29,14 @@ class AdminAuthController extends Controller
         ]);
 
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
-            if (!isset($_ENV['VERCEL']) && !getenv('VERCEL')) {
-                $request->session()->regenerate();
-            }
             return redirect()->route('admin.dashboard');
         }
 
+        $adminExists = \App\Models\Admin::where('username', $request->username)->exists();
+        $failReason = $adminExists ? 'Password salah (User admin ditemukan).' : 'User admin TIDAK ditemukan di database.';
+
         return back()->withErrors([
-            'username' => 'Username atau password yang dimasukkan salah.',
+            'username' => 'Gagal Login: ' . $failReason,
         ])->onlyInput('username');
     }
 
