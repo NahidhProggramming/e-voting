@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cookie;
 use App\Models\Admin;
 
 class AdminAuthController extends Controller
@@ -16,12 +17,14 @@ class AdminAuthController extends Controller
     {
         $authToken = $request->cookie('admin_auth_token');
         if ($authToken) {
-            $admins = Admin::all();
-            foreach ($admins as $admin) {
-                if ($authToken === md5($admin->id . '_evoting_secret_2026')) {
+            try {
+                $admin = Admin::first();
+                if ($admin && $authToken === md5($admin->id . '_evoting_secret_2026')) {
                     Auth::guard('admin')->setUser($admin);
                     return redirect()->route('admin.dashboard');
                 }
+            } catch (\Throwable $e) {
+                // Ignore
             }
         }
         return view('admin.login');
@@ -37,15 +40,21 @@ class AdminAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $admin = Admin::where('username', $credentials['username'])->first();
+        try {
+            $admin = Admin::where('username', $credentials['username'])->first();
 
-        if ($admin && Hash::check($credentials['password'], $admin->password)) {
-            Auth::guard('admin')->login($admin, true);
+            if ($admin && Hash::check($credentials['password'], $admin->password)) {
+                Auth::guard('admin')->login($admin, true);
 
-            $token = md5($admin->id . '_evoting_secret_2026');
+                $token = md5($admin->id . '_evoting_secret_2026');
+                Cookie::queue('admin_auth_token', $token, 120);
 
-            return redirect()->route('admin.dashboard')
-                ->cookie('admin_auth_token', $token, 120, '/', null, false, false, false, 'Lax');
+                return redirect()->route('admin.dashboard');
+            }
+        } catch (\Throwable $e) {
+            return back()->withErrors([
+                'username' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
+            ])->onlyInput('username');
         }
 
         return back()->withErrors([
@@ -60,9 +69,10 @@ class AdminAuthController extends Controller
     {
         Auth::guard('admin')->logout();
 
+        Cookie::queue(Cookie::forget('admin_auth_token'));
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login')->withoutCookie('admin_auth_token');
+        return redirect()->route('admin.login');
     }
 }
