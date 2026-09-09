@@ -6,6 +6,7 @@ use App\Http\Controllers\VotingController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CandidateCrudController;
+use App\Http\Middleware\VercelAdminAuth;
 
 // Voting Pages
 Route::get('/', [VotingController::class, 'index'])->name('voting.index');
@@ -17,8 +18,8 @@ Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('adm
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-// Admin Dashboard Pages (requires authentication via 'admin' guard)
-Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function () {
+// Admin Dashboard Pages (protected by VercelAdminAuth middleware)
+Route::middleware(VercelAdminAuth::class)->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::post('/toggle-status', [AdminDashboardController::class, 'toggleStatus'])->name('toggle-status');
     Route::post('/reset-votes', [AdminDashboardController::class, 'resetVotes'])->name('reset-votes');
